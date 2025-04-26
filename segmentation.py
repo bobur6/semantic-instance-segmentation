@@ -11,8 +11,8 @@ from config import TARGET_SIZE, INSTANCE_SCORE_THRESHOLD
 
 def resize_with_padding(img, target_size):
     """
-    Масштабирует изображение с сохранением пропорций и паддингом до target_size (tuple)
-    Возвращает padded_img, параметры crop (x_offset, y_offset, new_w, new_h)
+    Resize image with preserved aspect ratio and pad to target_size.
+    Returns padded_img, crop parameters (x_offset, y_offset, new_w, new_h), and original shape (h, w).
     """
     h, w = img.shape[:2]
     scale = min(target_size[0] / w, target_size[1] / h)
@@ -26,6 +26,9 @@ def resize_with_padding(img, target_size):
 
 
 def crop_to_original(img, crop_params, orig_shape):
+    """
+    Crop the padded image back to the original shape.
+    """
     x_offset, y_offset, new_w, new_h = crop_params
     h, w = orig_shape
     cropped = img[y_offset:y_offset+new_h, x_offset:x_offset+new_w]
@@ -33,7 +36,10 @@ def crop_to_original(img, crop_params, orig_shape):
 
 
 def semantic_segmentation(image_path, target_size=TARGET_SIZE):
-    """Семантическая сегментация с сохранением пропорций"""
+    """
+    Semantic segmentation using DeepLabV3 with aspect ratio preserved.
+    Returns (image in original shape, colored mask).
+    """
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = torchvision.models.segmentation.deeplabv3_resnet50(weights='DEFAULT')
     model.eval().to(device)
@@ -52,16 +58,19 @@ def semantic_segmentation(image_path, target_size=TARGET_SIZE):
     mask = output.argmax(0).cpu().numpy()
     semantic_mask = (mask > 0).astype(np.uint8)
     colored = np.zeros_like(padded_img)
-    colored[semantic_mask == 1] = [255, 255, 0]
-    colored[semantic_mask == 0] = [0, 0, 128]
-    # Обрезаем к оригинальному размеру
+    colored[semantic_mask == 1] = [255, 255, 0]  # yellow
+    colored[semantic_mask == 0] = [0, 0, 128]    # dark blue
+    # Crop to original size
     colored_cropped = crop_to_original(colored, crop_params, orig_shape)
     img_cropped = crop_to_original(padded_img, crop_params, orig_shape)
     return img_cropped, colored_cropped
 
 
 def instance_segmentation(image_path, target_size=TARGET_SIZE, score_thresh=INSTANCE_SCORE_THRESHOLD):
-    """Инстанс-сегментация с сохранением пропорций"""
+    """
+    Instance segmentation using Mask R-CNN with aspect ratio preserved.
+    Returns (image in original shape, instance mask overlay).
+    """
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = torchvision.models.detection.maskrcnn_resnet50_fpn(weights='DEFAULT')
     model.eval().to(device)
@@ -92,7 +101,7 @@ def instance_segmentation(image_path, target_size=TARGET_SIZE, score_thresh=INST
         colored_mask = np.zeros_like(instance_result)
         colored_mask[mask] = color
         instance_result = cv2.addWeighted(instance_result, 0.7, colored_mask, 0.3, 0)
-    # Обрезаем к оригинальному размеру
+    # Crop to original size
     instance_cropped = crop_to_original(instance_result, crop_params, orig_shape)
     img_cropped = crop_to_original(padded_img, crop_params, orig_shape)
     return img_cropped, instance_cropped

@@ -1,12 +1,15 @@
 """
-utils.py — Утилиты для воспроизводимости, логгирования и визуализации
+utils.py — Utilities for reproducibility, logging, and visualization
 """
-import torch
-import numpy as np
 import random
+import numpy as np
+import torch
 import logging
 
 def set_seed(seed=42):
+    """
+    Set random seed for reproducibility.
+    """
     torch.manual_seed(seed)
     np.random.seed(seed)
     random.seed(seed)
@@ -16,4 +19,10 @@ def set_seed(seed=42):
     torch.backends.cudnn.benchmark = False
 
 def setup_logging():
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+    """
+    Configure logging format for main.py.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(levelname)s: %(message)s'
+    )
