@@ -46,18 +46,13 @@ Task5/
 
 ---
 
-## Example Results (How to Show Results in README)
+## Results
 
-To display result images in your README on GitHub:
-1. **Commit several example output images** (e.g., `image1_results.png`) from your `results/` folder to your repository. By default, `.gitignore` may exclude `results/` — temporarily remove or edit `.gitignore` to allow these files.
-2. Use relative paths in the README, for example:
+Below are example segmentation results produced by the project. Each image shows the output for a different input (semantic or instance segmentation):
 
-| Original | Semantic Segmentation | Instance Segmentation |
-|----------|----------------------|----------------------|
-| ![](images/image1.jpg) | ![](results/image1_results.png) | ![](results/image1_results.png) |
-| ![](images/image2.jpg) | ![](results/image2_results.png) | ![](results/image2_results.png) |
-
-**Note:** Only committed files will be visible on GitHub. Do not commit the entire `results/` folder—just a few sample outputs for demonstration.
+| Example Output Results |
+|-----------------------|
+| ![](results/image1_results.png) ![](results/image2_results.png) ![](results/image3_results.png) |
 
 ---
 
@@ -78,7 +73,7 @@ MIT. Free to use and modify.
 
 ---
 
-**Author:** [Your Name]
+**Author:** Bobur
 
 ---
 
